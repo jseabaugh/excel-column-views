@@ -134,13 +134,7 @@ function unescapeXml(str) {
 /* ── Column reading ───────────────────────────────────────────── */
 async function readColumns(sheetId, headerRow = 1) {
   return Excel.run(async ctx => {
-    const sheet = ctx.workbook.worksheets.getItemOrNullObject(sheetId);
-    // Try by id first, fall back to getActiveWorksheet
-    sheet.load("id");
-    await ctx.sync();
-    const ws = sheet.isNullObject
-      ? ctx.workbook.worksheets.getActiveWorksheet()
-      : sheet;
+    const ws = ctx.workbook.worksheets.getActiveWorksheet();
 
     // Step 1: get used range to find start column and column count
     const usedRange = ws.getUsedRange(true);
@@ -213,12 +207,7 @@ async function applyView(sheetName, viewName) {
 
   try {
     await Excel.run(async ctx => {
-      const sheet = ctx.workbook.worksheets.getItemOrNullObject(sheetName);
-      sheet.load("id");
-      await ctx.sync();
-      const ws = sheet.isNullObject
-        ? ctx.workbook.worksheets.getActiveWorksheet()
-        : sheet;
+      const ws = ctx.workbook.worksheets.getActiveWorksheet();
 
       for (const col of view.columnStates) {
         // col.index is the absolute 0-based column index on the sheet
@@ -290,6 +279,7 @@ async function deleteView(sheetName, viewName) {
 
 /* ── Render Views List ────────────────────────────────────────── */
 function renderViewsList() {
+  refreshSheetName();
   const sheet = state.currentSheet;
   const sheetViews = (state.views[sheet] || []);
   const activeView = state.activeViews[sheet] || null;
@@ -526,14 +516,33 @@ async function saveView() {
   showToast(`View "${name}" saved`, "success");
 }
 
+/* ── Refresh sheet name (handles renames) ─────────────────────── */
+async function refreshSheetName() {
+  try {
+    await Excel.run(async ctx => {
+      const sheet = ctx.workbook.worksheets.getActiveWorksheet();
+      sheet.load("name");
+      await ctx.sync();
+      state.currentSheetName = sheet.name;
+    });
+    dom.sheetBadge.textContent = state.currentSheetName || "—";
+  } catch (_) {}
+}
+
 /* ── Sheet change handling ────────────────────────────────────── */
 async function onSheetChanged() {
   try {
     await Excel.run(async ctx => {
       const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-      sheet.load(["id", "name"]);
+      sheet.load("name");
       await ctx.sync();
-      state.currentSheet     = sheet.id;
+      try {
+        sheet.load("id");
+        await ctx.sync();
+        state.currentSheet = sheet.id || sheet.name;
+      } catch (_) {
+        state.currentSheet = sheet.name;
+      }
       state.currentSheetName = sheet.name;
     });
     dom.sheetBadge.textContent = state.currentSheetName || "—";
@@ -570,9 +579,16 @@ async function init() {
   // Get active sheet
   await Excel.run(async ctx => {
     const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-    sheet.load(["id", "name"]);
+    sheet.load("name");
     await ctx.sync();
-    state.currentSheet     = sheet.id;
+    // Try to load id separately — not available in all Excel versions
+    try {
+      sheet.load("id");
+      await ctx.sync();
+      state.currentSheet = sheet.id || sheet.name;
+    } catch (_) {
+      state.currentSheet = sheet.name;
+    }
     state.currentSheetName = sheet.name;
 
     // Watch for sheet change
