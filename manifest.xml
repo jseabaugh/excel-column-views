@@ -7,10 +7,13 @@
 
   <Id>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Column Views Add-in</ProviderName>
+  <ProviderName>The Giving Tribe</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Column Views"/>
   <Description DefaultValue="Create and manage named column visibility views for your worksheets."/>
+  <IconUrl DefaultValue="https://jseabaugh.github.io/excel-column-views/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://jseabaugh.github.io/excel-column-views/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://github.com/jseabaugh/excel-column-views/issues"/>
 
   <Hosts>
     <Host Name="Workbook"/>
@@ -71,7 +74,7 @@
         <bt:Image id="Icon.80x80" DefaultValue="https://jseabaugh.github.io/excel-column-views/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://jseabaugh.github.io/excel-column-views/"/>
         <bt:Url id="Commands.Url" DefaultValue="https://jseabaugh.github.io/excel-column-views/commands.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://jseabaugh.github.io/excel-column-views/taskpane.html"/>
       </bt:Urls>
