@@ -324,37 +324,46 @@ function renderViewsList() {
         </button>
       </div>`;
 
-    card.querySelector(".view-card-top").addEventListener("click", () => applyView(sheet, view.name));
+    // Capture name once for all handlers on this card
+    const capturedName = view.name;
+    const capturedSheet = sheet;
 
-    card.querySelectorAll(".view-action-btn").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        e.stopPropagation();
-        const action = btn.dataset.action;
-        if (action === "apply")  await applyView(sheet, view.name);
-        if (action === "edit")   openEditor(view.name);
-        if (action === "delete") {
-          // Two-click delete: first click arms the button, second click confirms
-          if (btn.dataset.armed === "true") {
-            await deleteView(sheet, view.name);
-          } else {
-            btn.dataset.armed = "true";
-            btn.textContent = "Confirm?";
-            btn.style.color = "var(--red)";
-            btn.style.fontWeight = "600";
-            // Auto-reset after 3 seconds if not confirmed
-            setTimeout(() => {
-              if (btn.dataset.armed === "true") {
-                btn.dataset.armed = "false";
-                btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                  <path d="M2 3h7M4.5 3V2h2v1M5.5 5v3M4 5l.2 3M7 5l-.2 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                </svg> Delete`;
-                btn.style.color = "";
-                btn.style.fontWeight = "";
-              }
-            }, 3000);
+    card.querySelector(".view-card-top").addEventListener("click", () => applyView(capturedSheet, capturedName));
+
+    // Wire each button individually rather than via forEach to avoid closure issues
+    const applyBtn  = card.querySelector(".view-action-btn.apply");
+    const editBtn   = card.querySelector(".view-action-btn.edit");
+    const deleteBtn = card.querySelector(".view-action-btn.delete");
+
+    applyBtn.addEventListener("click", async e => {
+      e.stopPropagation();
+      await applyView(capturedSheet, capturedName);
+    });
+
+    editBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      openEditor(capturedName);
+    });
+
+    deleteBtn.addEventListener("click", async e => {
+      e.stopPropagation();
+      if (deleteBtn.dataset.armed === "true") {
+        deleteBtn.dataset.armed = "false";
+        await deleteView(capturedSheet, capturedName);
+      } else {
+        deleteBtn.dataset.armed = "true";
+        deleteBtn.textContent = "Confirm?";
+        deleteBtn.style.color = "var(--red)";
+        deleteBtn.style.fontWeight = "700";
+        setTimeout(() => {
+          if (deleteBtn.dataset.armed === "true") {
+            deleteBtn.dataset.armed = "false";
+            deleteBtn.textContent = "Delete";
+            deleteBtn.style.color = "";
+            deleteBtn.style.fontWeight = "";
           }
-        }
-      });
+        }, 3000);
+      }
     });
 
     dom.viewsList.appendChild(card);
