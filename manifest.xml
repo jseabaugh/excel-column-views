@@ -12,7 +12,7 @@
   <DisplayName DefaultValue="Column Views"/>
   <Description DefaultValue="Create and manage named column visibility views for your worksheets."/>
   <IconUrl DefaultValue="https://jseabaugh.github.io/excel-column-views/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://jseabaugh.github.io/excel-column-views/assets/icon-128.png"/>
+  <HighResolutionIconUrl DefaultValue="https://jseabaugh.github.io/excel-column-views/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://github.com/jseabaugh/excel-column-views/issues"/>
 
   <Hosts>
