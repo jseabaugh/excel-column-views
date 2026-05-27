@@ -333,7 +333,26 @@ function renderViewsList() {
         if (action === "apply")  await applyView(sheet, view.name);
         if (action === "edit")   openEditor(view.name);
         if (action === "delete") {
-          if (confirm(`Delete view "${view.name}"?`)) await deleteView(sheet, view.name);
+          // Two-click delete: first click arms the button, second click confirms
+          if (btn.dataset.armed === "true") {
+            await deleteView(sheet, view.name);
+          } else {
+            btn.dataset.armed = "true";
+            btn.textContent = "Confirm?";
+            btn.style.color = "var(--red)";
+            btn.style.fontWeight = "600";
+            // Auto-reset after 3 seconds if not confirmed
+            setTimeout(() => {
+              if (btn.dataset.armed === "true") {
+                btn.dataset.armed = "false";
+                btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M2 3h7M4.5 3V2h2v1M5.5 5v3M4 5l.2 3M7 5l-.2 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg> Delete`;
+                btn.style.color = "";
+                btn.style.fontWeight = "";
+              }
+            }, 3000);
+          }
         }
       });
     });
