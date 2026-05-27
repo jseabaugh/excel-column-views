@@ -16,11 +16,12 @@ const XML_PART_KEY  = "ColumnViewsData";
 
 /* ── App State ────────────────────────────────────────────────── */
 const state = {
-  views: {},          // { [sheetName]: View[] }
-  activeViews: {},    // { [sheetName]: string (view name) | null }
-  currentSheet: null,
-  editingViewName: null,   // null = creating new
-  columnDefs: [],          // { letter, name } for current sheet
+  views: {},            // { [sheetId]: View[] }
+  activeViews: {},      // { [sheetId]: string (view name) | null }
+  currentSheet: null,   // sheet id (permanent, survives renames)
+  currentSheetName: "", // sheet display name (for badge only)
+  editingViewName: null,
+  columnDefs: [],
 };
 
 /* ── DOM refs ─────────────────────────────────────────────────── */
@@ -131,22 +132,27 @@ function unescapeXml(str) {
 }
 
 /* ── Column reading ───────────────────────────────────────────── */
-async function readColumns(sheetName, headerRow = 1) {
+async function readColumns(sheetId, headerRow = 1) {
   return Excel.run(async ctx => {
-    const sheet = ctx.workbook.worksheets.getItem(sheetName);
+    const sheet = ctx.workbook.worksheets.getItemOrNullObject(sheetId);
+    // Try by id first, fall back to getActiveWorksheet
+    sheet.load("id");
+    await ctx.sync();
+    const ws = sheet.isNullObject
+      ? ctx.workbook.worksheets.getActiveWorksheet()
+      : sheet;
 
     // Step 1: get used range to find start column and column count
-    const usedRange = sheet.getUsedRange(true);
+    const usedRange = ws.getUsedRange(true);
     usedRange.load(["columnIndex", "columnCount"]);
     await ctx.sync();
-    const startCol = usedRange.columnIndex || 0;   // absolute 0-based column offset
+    const startCol = usedRange.columnIndex || 0;
     const colCount = Math.min(usedRange.columnCount || 0, 200);
     if (colCount === 0) return { defs: [], hiddenMap: {} };
 
     // Step 2: read the header row using absolute sheet coordinates
-    // headerRow is 1-based (user input), getRangeByIndexes is 0-based
     const headerRowIndex = Math.max(0, headerRow - 1);
-    const headerRange = sheet.getRangeByIndexes(headerRowIndex, startCol, 1, colCount);
+    const headerRange = ws.getRangeByIndexes(headerRowIndex, startCol, 1, colCount);
     headerRange.load("values");
     await ctx.sync();
     const headerValues = headerRange.values[0] || [];
@@ -170,7 +176,7 @@ async function readColumns(sheetName, headerRow = 1) {
     try {
       for (let i = 0; i < colCount; i++) {
         const absColIndex = startCol + i;
-        const cell = sheet.getRangeByIndexes(0, absColIndex, 1, 1);
+        const cell = ws.getRangeByIndexes(0, absColIndex, 1, 1);
         cell.load("columnHidden");
         await ctx.sync();
         hiddenMap[absColIndex] = cell.columnHidden;
@@ -207,12 +213,17 @@ async function applyView(sheetName, viewName) {
 
   try {
     await Excel.run(async ctx => {
-      const sheet = ctx.workbook.worksheets.getItem(sheetName);
+      const sheet = ctx.workbook.worksheets.getItemOrNullObject(sheetName);
+      sheet.load("id");
+      await ctx.sync();
+      const ws = sheet.isNullObject
+        ? ctx.workbook.worksheets.getActiveWorksheet()
+        : sheet;
 
       for (const col of view.columnStates) {
         // col.index is the absolute 0-based column index on the sheet
         const colIndex = typeof col.index === "number" ? col.index : columnLetterToIndex(col.letter);
-        const range = sheet.getRangeByIndexes(0, colIndex, 1, 1);
+        const range = ws.getRangeByIndexes(0, colIndex, 1, 1);
         range.columnHidden = !col.visible;
       }
 
@@ -230,13 +241,13 @@ async function applyView(sheetName, viewName) {
 }
 
 /* ── Show All Columns ─────────────────────────────────────────── */
-async function showAllColumns(sheetName) {
+async function showAllColumns(sheetId) {
   try {
     await Excel.run(async ctx => {
-      const sheet = ctx.workbook.worksheets.getItem(sheetName);
+      const ws = ctx.workbook.worksheets.getActiveWorksheet();
 
       // Collect every unique column index ever used across all views for this sheet
-      const sheetViews = state.views[sheetName] || [];
+      const sheetViews = state.views[sheetId] || [];
       const colIndexes = new Set();
       for (const view of sheetViews) {
         for (const col of view.columnStates) {
@@ -249,14 +260,14 @@ async function showAllColumns(sheetName) {
 
       // Unhide each column individually
       for (const idx of colIndexes) {
-        const range = sheet.getRangeByIndexes(0, idx, 1, 1);
+        const range = ws.getRangeByIndexes(0, idx, 1, 1);
         range.columnHidden = false;
       }
 
       await ctx.sync();
     });
 
-    state.activeViews[sheetName] = null;
+    state.activeViews[sheetId] = null;
     await saveToWorkbook();
     renderViewsList();
     showToast("All columns shown", "success");
@@ -520,11 +531,12 @@ async function onSheetChanged() {
   try {
     await Excel.run(async ctx => {
       const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-      sheet.load("name");
+      sheet.load(["id", "name"]);
       await ctx.sync();
-      state.currentSheet = sheet.name;
+      state.currentSheet     = sheet.id;
+      state.currentSheetName = sheet.name;
     });
-    dom.sheetBadge.textContent = state.currentSheet || "—";
+    dom.sheetBadge.textContent = state.currentSheetName || "—";
     renderViewsList();
   } catch (err) {
     console.error("onSheetChanged:", err);
@@ -558,9 +570,10 @@ async function init() {
   // Get active sheet
   await Excel.run(async ctx => {
     const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-    sheet.load("name");
+    sheet.load(["id", "name"]);
     await ctx.sync();
-    state.currentSheet = sheet.name;
+    state.currentSheet     = sheet.id;
+    state.currentSheetName = sheet.name;
 
     // Watch for sheet change
     ctx.workbook.worksheets.onActivated.add(async () => {
@@ -569,7 +582,7 @@ async function init() {
     await ctx.sync();
   });
 
-  dom.sheetBadge.textContent = state.currentSheet || "—";
+  dom.sheetBadge.textContent = state.currentSheetName || "—";
   renderViewsList();
   showPanel("views");
 }
