@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Column Views</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f2ee;
+      --surface: #fdfcfa;
+      --border: #ddd8d0;
+      --text: #2e2a25;
+      --text-2: #6b6560;
+      --accent: #5a7c5a;
+    }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .logo svg { flex-shrink: 0; }
+    .logo-text { font-size: 15px; font-weight: 600; }
+    main {
+      padding: 56px 0 80px;
+    }
+    .page-title {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .last-updated {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 48px;
+      font-family: 'DM Mono', monospace;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 40px 0 12px;
+    }
+    p { margin-bottom: 16px; color: var(--text); }
+    ul { margin: 0 0 16px 24px; }
+    li { margin-bottom: 8px; color: var(--text); }
+    .highlight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin: 32px 0;
+    }
+    .highlight-box p {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="1" y="3" width="3" height="14" rx="1" fill="#5a7c5a"/>
+          <rect x="6" y="3" width="3" height="14" rx="1" fill="#5a7c5a" opacity="0.5"/>
+          <rect x="11" y="3" width="3" height="14" rx="1" fill="#5a7c5a"/>
+          <rect x="16" y="3" width="3" height="14" rx="1" fill="#5a7c5a" opacity="0.3"/>
+        </svg>
+        <span class="logo-text">Column Views</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1 class="page-title">Privacy Policy</h1>
+      <p class="last-updated">Last updated: May 2026</p>
+
+      <div class="highlight-box">
+        <p>Column Views does not collect, store, transmit, or share any personal data. Your data never leaves your device or your own workbook.</p>
+      </div>
+
+      <h2>Overview</h2>
+      <p>Column Views is a Microsoft Excel add-in that allows users to create and manage named column visibility configurations within their spreadsheets. This privacy policy explains what data the add-in handles and how it is used.</p>
+
+      <h2>Data We Do Not Collect</h2>
+      <p>Column Views does not collect any of the following:</p>
+      <ul>
+        <li>Personal information of any kind (name, email, address, etc.)</li>
+        <li>Spreadsheet data, cell values, or workbook contents</li>
+        <li>Usage analytics or telemetry</li>
+        <li>Device information or identifiers</li>
+        <li>Location data</li>
+        <li>Authentication credentials</li>
+      </ul>
+
+      <h2>How Your Data Is Stored</h2>
+      <p>Column Views saves your view configurations (view names and column visibility settings) directly inside your Excel workbook using Excel's built-in Custom XML Parts storage. This means:</p>
+      <ul>
+        <li>Your view configurations are stored only within the workbook file itself</li>
+        <li>No data is sent to any external server</li>
+        <li>No data is stored in any cloud service operated by the add-in developer</li>
+        <li>Your data is under your complete control at all times</li>
+      </ul>
+
+      <h2>Network Requests</h2>
+      <p>When you open the Column Views task pane, Excel loads the add-in's interface files (HTML, CSS, and JavaScript) from GitHub Pages at <code>https://jseabaugh.github.io/excel-column-views/</code>. These are static files only. No user data is included in or transmitted during this request.</p>
+      <p>The add-in also loads the Office.js library from Microsoft's CDN (<code>https://appsforoffice.microsoft.com</code>). This is a standard Microsoft library used by all Office add-ins.</p>
+
+      <h2>Third-Party Services</h2>
+      <p>Column Views uses the following third-party services solely to deliver its interface:</p>
+      <ul>
+        <li><strong>GitHub Pages</strong> — hosts the static add-in files. GitHub's privacy policy applies to these requests.</li>
+        <li><strong>Google Fonts</strong> — loads the DM Sans and DM Mono typefaces used in the interface. Google's privacy policy applies to font requests.</li>
+        <li><strong>Microsoft Office.js CDN</strong> — delivers the Office JavaScript API library. Microsoft's privacy policy applies.</li>
+      </ul>
+      <p>None of these services receive any of your spreadsheet data or personal information as part of normal add-in operation.</p>
+
+      <h2>Children's Privacy</h2>
+      <p>Column Views does not knowingly collect any information from children under the age of 13. The add-in collects no personal data from any user of any age.</p>
+
+      <h2>Changes to This Policy</h2>
+      <p>If this privacy policy changes, the updated version will be posted at this URL with a revised "Last updated" date.</p>
+
+      <h2>Contact</h2>
+      <p>If you have any questions about this privacy policy, you can open an issue on the <a href="https://github.com/jseabaugh/excel-column-views" target="_blank">GitHub repository</a>.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      Column Views · <a href="index.html">Home</a> · <a href="privacy-policy.html">Privacy Policy</a>
+    </div>
+  </footer>
+</body>
+</html>
