@@ -1,0 +1,14 @@
+{
+  "name": "excel-column-views-addin",
+  "version": "1.0.0",
+  "description": "Excel Add-in for managing named column visibility views",
+  "scripts": {
+    "start": "npx http-server . -p 3000 --ssl --cert localhost.crt --key localhost.key -c-1",
+    "start-no-ssl": "npx http-server . -p 3000 -c-1",
+    "validate": "npx office-addin-manifest validate manifest.xml"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "office-addin-manifest": "^1.8.0"
+  }
+}
